@@ -10,12 +10,13 @@ class Patient:
 		#properties
 		self.filename = ""
 		self.classificationLabel = 0
-		self.patientID = 0
+		self.patientID = 0			
+		self.predictedClassificationLabel = 0
 		
 		#features
 		self.meanOfMeasurements = (0,0)
 		self.varianceOfMeasurements = (0,0)
-		self.standardDeviation = (0,0)
+		self.standardDeviation = (0,0)		
 		
 		self.parseFileName(filename)
 		

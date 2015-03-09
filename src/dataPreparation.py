@@ -1,4 +1,4 @@
-from Patient import Patient 
+from Patient import Patient
 import os
 import numpy as np
 
@@ -42,7 +42,7 @@ def readPatientDataForFilesInDirectory(directory):
         allPatients[patientIndex].systolicMeasurements = patientData[:,[1]]
                                     
     return allPatients
-    
+
 #Main
 allPatients = readPatientDataForFilesInDirectory('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
 
@@ -57,18 +57,18 @@ for patientIndex in range(len(allPatients)):
 
 print "\n##################\n Diastolic Mean\n##################\n"
 for patientIndex in range(len(allPatients)):
-    print allPatients[patientIndex].meanOfMeasurements[0]
+    print "[["+str(int(allPatients[patientIndex].meanOfMeasurements[0]))+","+str(int(allPatients[patientIndex].meanOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"
 
-print "\n##################\n Systolic Mean\n##################\n"
-for patientIndex in range(len(allPatients)):
-    print allPatients[patientIndex].meanOfMeasurements[1]
+# print "\n##################\n Systolic Mean\n##################\n"
+# for patientIndex in range(len(allPatients)):
+#     print allPatients[patientIndex].meanOfMeasurements[1]
 
 print "\n##################\n Diastolic Variance\n##################\n"
 for patientIndex in range(len(allPatients)):
-    print allPatients[patientIndex].standardDeviation[0]/allPatients[patientIndex].meanOfMeasurements[0]
+    print "[["+str(int(allPatients[patientIndex].varianceOfMeasurements[0]))+","+str(int(allPatients[patientIndex].varianceOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"
 
-print "\n##################\n Systolic Variance\n##################\n"
-for patientIndex in range(len(allPatients)):
-    print allPatients[patientIndex].standardDeviation[1]/allPatients[patientIndex].meanOfMeasurements[1]
+# print "\n##################\n Systolic Variance\n##################\n"
+# for patientIndex in range(len(allPatients)):
+#     print allPatients[patientIndex].standardDeviation[1]/allPatients[patientIndex].meanOfMeasurements[1]
 
         
