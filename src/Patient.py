@@ -16,7 +16,10 @@ class Patient:
 		#features
 		self.meanOfMeasurements = (0,0)
 		self.varianceOfMeasurements = (0,0)
-		self.standardDeviation = (0,0)		
+		self.standardDeviation = (0,0)	
+		self.maxValue = (0,0)
+		self.minValue = (0,0)
+		self.differenceOfMaxAndMinValue = (0,0)	
 		
 		self.parseFileName(filename)
 		
@@ -40,6 +43,11 @@ class Patient:
 		self.varianceOfMeasurements = (varianceForDiastolicMeasurements,varianceForSystolicMeasurements)				
 		self.standardDeviation = (self.varianceOfMeasurements[0]**(0.5),self.varianceOfMeasurements[1]**(0.5))			
 		
+	def computeMaxMinDiff(self):
+		self.maxValue = (np.amax(self.diastolicMeasurements),np.amax(self.systolicMeasurements))
+		self.minValue = (np.amin(self.diastolicMeasurements),np.amin(self.systolicMeasurements))
+		self.differenceOfMaxAndMinValue = (self.maxValue[0] - self.minValue[0],self.maxValue[1] - self.minValue[1])
+	
 	def printMeasurements(self):
 		print "\n##################\nDiastolic Measurements for Patient#"+str(self.patientID)+"\n##################\n"
 		print self.diastolicMeasurements

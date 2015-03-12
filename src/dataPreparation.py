@@ -43,6 +43,13 @@ def readPatientDataForFilesInDirectory(directory):
                                     
     return allPatients
 
+def distanceForMeasurements(measurements):
+    distance = 0
+    for i in range(len(measurements)):
+        distance = distance + measurements[i]**2
+    
+    distance = distance**(0.5)
+
 #Main
 allPatients = readPatientDataForFilesInDirectory('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
 
@@ -54,21 +61,72 @@ print "\n##################\n Compute Mean and Variance\n##################\n"
 for patientIndex in range(len(allPatients)):    
     meanForPatientMeasurements = allPatients[patientIndex].computeMean()
     varianceOfMeasurements = allPatients[patientIndex].computeVariance()
+    allPatients[patientIndex].computeMaxMinDiff()
 
-print "\n##################\n Diastolic Mean\n##################\n"
+
+print "\n##################\n Mean\n##################\n"
 for patientIndex in range(len(allPatients)):
-    print "[["+str(int(allPatients[patientIndex].meanOfMeasurements[0]))+","+str(int(allPatients[patientIndex].meanOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"
-
-# print "\n##################\n Systolic Mean\n##################\n"
-# for patientIndex in range(len(allPatients)):
-#     print allPatients[patientIndex].meanOfMeasurements[1]
-
-print "\n##################\n Diastolic Variance\n##################\n"
+    print str((allPatients[patientIndex].meanOfMeasurements[0]))
+    
+print "\n##################\n Mean\n##################\n"
 for patientIndex in range(len(allPatients)):
-    print "[["+str(int(allPatients[patientIndex].varianceOfMeasurements[0]))+","+str(int(allPatients[patientIndex].varianceOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"
+    print str((allPatients[patientIndex].meanOfMeasurements[1]))
 
-# print "\n##################\n Systolic Variance\n##################\n"
-# for patientIndex in range(len(allPatients)):
-#     print allPatients[patientIndex].standardDeviation[1]/allPatients[patientIndex].meanOfMeasurements[1]
 
+
+print "\n##################\n Variance\n##################\n"
+for patientIndex in range(len(allPatients)):
+    print str((allPatients[patientIndex].varianceOfMeasurements[0]))
+    
+print "\n##################\n Variance\n##################\n"
+for patientIndex in range(len(allPatients)):
+    print str((allPatients[patientIndex].varianceOfMeasurements[1]))
+    
+
+
+print "\n##################\n SD/Mean\n##################\n"
+for patientIndex in range(len(allPatients)):
+    print str(((allPatients[patientIndex].meanOfMeasurements[0]))/(allPatients[patientIndex].varianceOfMeasurements[0]))
+    
+print "\n##################\n SD/Mean\n##################\n"
+for patientIndex in range(len(allPatients)):
+    print str(((allPatients[patientIndex].meanOfMeasurements[1]))/(allPatients[patientIndex].varianceOfMeasurements[1]))
+
+
+print "\n##################\n SD/Mean \n##################\n"
+for patientIndex in range(len(allPatients)):
+    print "[["+str((allPatients[patientIndex].standardDeviation[0]/allPatients[patientIndex].meanOfMeasurements[0]))+","+str((allPatients[patientIndex].standardDeviation[1]/allPatients[patientIndex].meanOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"
+
+
+
+print "\n##################\n All Features\n##################\n"
+for patientIndex in range(len(allPatients)):
+    print "[["+str((allPatients[patientIndex].meanOfMeasurements[0]))+","+str((allPatients[patientIndex].meanOfMeasurements[1]))+","+str((allPatients[patientIndex].varianceOfMeasurements[0]))+","+str((allPatients[patientIndex].varianceOfMeasurements[1]))+","+str((allPatients[patientIndex].standardDeviation[0]/allPatients[patientIndex].meanOfMeasurements[0]))+","+str((allPatients[patientIndex].standardDeviation[1]/allPatients[patientIndex].meanOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"
+
+print "\n##################\n Deviation Between Max and Min\n##################\n"
+for patientIndex in range(len(allPatients)):
+    print "[["+str((allPatients[patientIndex].differenceOfMaxAndMinValue[0]))+","+str((allPatients[patientIndex].differenceOfMaxAndMinValue[1]))+"],["+str(allPatients[patientIndex].classificationLabel)+"]],"
+    
+print "\n##################\n Diastolic\n##################\n"
+for patientIndex in range(len(allPatients)):
+    print str((allPatients[patientIndex].differenceOfMaxAndMinValue[0]))
+
+print "\n##################\n Systolic\n##################\n"
+for patientIndex in range(len(allPatients)):
+    print str((allPatients[patientIndex].differenceOfMaxAndMinValue[1]))    
+
+print "\n##################\n Labels\n##################\n"
+for patientIndex in range(len(allPatients)):   
+    str(allPatients[patientIndex].classificationLabel)
         
+# print "\n##################\n Mean\n##################\n"
+# for patientIndex in range(len(allPatients)):
+#     print "[["+str(int(allPatients[patientIndex].meanOfMeasurements[0]))+","+str(int(allPatients[patientIndex].meanOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"
+# 
+# print "\n##################\n Variance\n##################\n"
+# for patientIndex in range(len(allPatients)):
+#     print "[["+str(int(allPatients[patientIndex].varianceOfMeasurements[0]))+","+str(int(allPatients[patientIndex].varianceOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"
+# 
+# print "\n##################\n SD/Mean \n##################\n"
+# for patientIndex in range(len(allPatients)):
+#     print "[["+str((allPatients[patientIndex].standardDeviation[0]/allPatients[patientIndex].meanOfMeasurements[0]))+","+str((allPatients[patientIndex].standardDeviation[1]/allPatients[patientIndex].meanOfMeasurements[1]))+"]"+",["+str(allPatients[patientIndex].classificationLabel)+"]],"    
