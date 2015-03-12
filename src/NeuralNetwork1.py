@@ -17,13 +17,13 @@ def makeMatrix(I, J, fill=0.0):
 
 # our sigmoid function, tanh is a little nicer than the standard 1/(1+e^-x)
 def sigmoid(x):
-#     return math.tanh(x)
+    return math.tanh(x)
     return 1/(1+(math.e**(-x)))
 
 # derivative of our sigmoid function, in terms of the output (i.e. y)
 def dsigmoid(y):
-#     return 1.0 - y**2
-    return (1-y)*y
+    return 1.0 - y**2
+#     return (1-y)*y
 
 class NeuralNetwork1(Classifier):
     def __init__(self, ni, nh, no):
@@ -75,6 +75,8 @@ class NeuralNetwork1(Classifier):
                 sum = sum + self.ah[j] * self.wo[j][k]
             self.ao[k] = sigmoid(sum)
 
+#         print "Output"
+#         print self.ao[:]
         return self.ao[:]
 
 
@@ -122,7 +124,7 @@ class NeuralNetwork1(Classifier):
         sum = 0
         for p in patterns:
             predicted = self.update(p[0])
-            print('| Predicted: '+str(int(round(predicted[0])))+' | Actuals: '+str(p[1][0]))
+            print('| Predicted: '+str(predicted[0])+' | Actuals: '+str(p[1][0]))
             if(int(round(predicted[0])) == int(p[1][0])):
                 sum = sum + 1
                 
@@ -147,7 +149,9 @@ class NeuralNetwork1(Classifier):
                 inputs = p[0]
                 targets = p[1]
                 self.update(inputs)
-                error = error + self.backPropagate(targets, N, M)
+                backpropChange = self.backPropagate(targets, N, M)
+#                 print "backpropChange:"+str(backpropChange)
+                error = error + backpropChange
             if i % 100 == 0:
                 print('error %-.5f' % error)
 

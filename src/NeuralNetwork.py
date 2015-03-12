@@ -11,9 +11,9 @@ class NeuralNetwork(Classifier):
         self.numberOfHiddenNeurons = numberOfHiddenNeurons
         self.numberOfOutputNeurons = numberOfOutputNeurons        
         
-        #Initialize the weights to 1.0
-        self.weightsBetweenInputAndHiddenLayer = np.ones([self.numberOfInputNeurons,self.numberOfHiddenNeurons])
-        self.weightsBetweenHiddenAndOutputLayer = np.ones([self.numberOfHiddenNeurons,self.numberOfOutputNeurons])
+        #Initialize the weights to 1.0 and then randomize
+        self.weightsBetweenInputAndHiddenLayer = np.zeros([self.numberOfInputNeurons,self.numberOfHiddenNeurons])
+        self.weightsBetweenHiddenAndOutputLayer = np.zeros([self.numberOfHiddenNeurons,self.numberOfOutputNeurons])            
         
         #Initialize the activations to matrices of 1s
         self.activationsForInputLayer = np.ones([self.numberOfInputNeurons])
@@ -24,6 +24,21 @@ class NeuralNetwork(Classifier):
         self.vectorizedSigmoid = np.vectorize(self.sigmoid)
         self.vectorizedDifferentialOfSigmoid = np.vectorize(self.differentialOfSigmoid)
         
+        #Previous update in weights for momentum   
+        self.previousUpdateForInputHiddenLayers = np.zeros([self.numberOfInputNeurons,self.numberOfHiddenNeurons])
+        self.previousUpdateForHiddenOutputLayers = np.zeros([self.numberOfHiddenNeurons,self.numberOfOutputNeurons]) 
+        
+        #Randomize Weights
+        self.randomizeWeights(0.2, 2.0)
+        
+    def randomizeWeights(self,initialWeightIntensityBetweenInputAndHidden=0.2,initialWeightIntensityBetweenHiddenAndOutput=2):        
+        for inputNeuronIndex in range(self.numberOfInputNeurons):
+            for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):
+                self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex] = ((initialWeightIntensityBetweenInputAndHidden - (-1*initialWeightIntensityBetweenInputAndHidden))*random.random()) + (-1*initialWeightIntensityBetweenInputAndHidden)
+        for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):
+            for outputNeuronIndex in range(self.numberOfOutputNeurons):
+                self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex] = ((initialWeightIntensityBetweenHiddenAndOutput - (-1*initialWeightIntensityBetweenHiddenAndOutput))*random.random()) + (-1*initialWeightIntensityBetweenHiddenAndOutput)
+                
     def sigmoid(self,x):
 #         return math.tanh(x)
         return 1/(1+(math.e**(-x)))
@@ -36,7 +51,7 @@ class NeuralNetwork(Classifier):
         self.activationsForInputLayer = inputVector[0,0]
         
         #add bias input
-        self.activationsForInputLayer = np.insert(self.activationsForInputLayer,0,-1,axis=0)
+        self.activationsForInputLayer = np.append(self.activationsForInputLayer,1.0)
         
         #hiddenLayer activations is sigmoid(dot product of inputActivation and inputWeights)
         self.activationsForHiddenLayer = self.vectorizedSigmoid(np.dot(self.activationsForInputLayer,self.weightsBetweenInputAndHiddenLayer))
@@ -50,7 +65,7 @@ class NeuralNetwork(Classifier):
 #         print "**************************"
 #         print self.activationsForOutputLayer
         
-    def backPropagation(self,targetOutputVectors, N_learningRate):
+    def backPropagation(self,targetOutputVectors, N_learningRate, M_momentum=0.3):
         
         #ERROR and DELTA computation : DELTA is GRADIENT * Error
         ########################################################
@@ -62,28 +77,27 @@ class NeuralNetwork(Classifier):
             #Compute error between the target and predicted values
             error = targetOutputVectors[outputNeuronIndex,0] - self.activationsForOutputLayer[outputNeuronIndex]
             #Compute gradientOfThePredictedValue * error
-            outputDelta[outputNeuronIndex] = error * self.differentialOfSigmoid(self.activationsForOutputLayer[outputNeuronIndex])        
+            outputDelta[outputNeuronIndex] = error * self.vectorizedDifferentialOfSigmoid(self.activationsForOutputLayer[outputNeuronIndex])        
             
         #for each hidden neuron
         for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):
             error = 0.0
             #Sum the errors from all the output neurons
             for outputNeuronIndex in range(self.numberOfOutputNeurons):
-                error = error + self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex]
+                error = error + self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex]*outputDelta[outputNeuronIndex]
             
             #Multiply the error with the gradientOfTheOutputAtTheHiddenLayer
-            hiddenDelta[hiddenNeuronIndex] = error * self.differentialOfSigmoid(self.activationsForHiddenLayer[hiddenNeuronIndex])            
+            hiddenDelta[hiddenNeuronIndex] = error * self.vectorizedDifferentialOfSigmoid(self.activationsForHiddenLayer[hiddenNeuronIndex])            
                 
         #WEIGHT UPDATES
         ###############
         
         #Update weights for hiddenLayer
         for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):
-            for outputNeuronIndex in range(self.numberOfOutputNeurons):
-                #TODO: Check if the updates should be added or subtracted
-                update = (outputDelta[outputNeuronIndex] * self.activationsForHiddenLayer[hiddenNeuronIndex])
-                #TODO: Check if Momentum is required - to get out of local minima.
-                self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex] = self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex] + N_learningRate * update
+            for outputNeuronIndex in range(self.numberOfOutputNeurons):                
+                update = (outputDelta[outputNeuronIndex] * self.activationsForHiddenLayer[hiddenNeuronIndex])                
+                self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex] = self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex] + (N_learningRate * update) + (M_momentum * self.previousUpdateForHiddenOutputLayers[hiddenNeuronIndex,outputNeuronIndex])
+                self.previousUpdateForHiddenOutputLayers[hiddenNeuronIndex,outputNeuronIndex] = update
                       
         #Update weights for inputLayer
         for inputNeuronIndex in range(self.numberOfInputNeurons):
@@ -91,7 +105,8 @@ class NeuralNetwork(Classifier):
                 #TODO: Check if the updates should be added or subtracted
                 update = (hiddenDelta[hiddenNeuronIndex] * self.activationsForInputLayer[inputNeuronIndex])
                 #TODO: Check if Momentum is required - to get out of local minima.
-                self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex] = self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex]  + N_learningRate * update
+                self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex] = self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex]  + (N_learningRate * update) + (M_momentum * self.previousUpdateForInputHiddenLayers[inputNeuronIndex,hiddenNeuronIndex])
+                self.previousUpdateForInputHiddenLayers[inputNeuronIndex,hiddenNeuronIndex] = update
                 
         #Show the amount of error with squaredDifferenceError
         error = 0.0
@@ -99,7 +114,7 @@ class NeuralNetwork(Classifier):
             error = error + ((0.5)*((targetOutputVectors[outputNeuronIndex,0] - self.activationsForOutputLayer[outputNeuronIndex])**2))        
         return error
     
-    def train(self,trainingSet,iterations=1000,N_learningRate=0.3):
+    def train(self,trainingSet,iterations=1000,N_learningRate=0.1,M_momentum=0.3):
         print "**************************"
         print "TRAINING"
         print "**************************"     
@@ -108,14 +123,18 @@ class NeuralNetwork(Classifier):
         for iteration in range(iterations):    
             error = 0.0           
             predictedOutputVector = 0
-            for inputVector in inputVectors:
+            for inputVectorIndex in range(len(inputVectors)):
+                inputVector = inputVectors[inputVectorIndex]
                 self.computeOutput(inputVector)                
                 if(np.shape(predictedOutputVector) != ()):
                     predictedOutputVector = np.append(predictedOutputVector,self.activationsForOutputLayer);                
                 else:
                     predictedOutputVector = self.activationsForOutputLayer
-                error = error + self.backPropagation(targetOutputVector, N_learningRate)
-            print "error:"+str(error)                
+                backPropChange = self.backPropagation(targetOutputVector[inputVectorIndex], N_learningRate,M_momentum)
+#                 print "BackPropChange:"+str(backPropChange)
+                error = error + backPropChange
+            if iteration % 100 == 0:
+                print('error %-.5f' % error)                            
 #             print "Predicted Output(TRAINING):"
 #             print predictedOutputVector
             
@@ -134,6 +153,7 @@ class NeuralNetwork(Classifier):
             else:
                 predictedOutputVector = self.activationsForOutputLayer
         print "Predicted Output(TESTING):"
+        roundVector = np.vectorize(round)
         print predictedOutputVector        
         
         #Compute TP FP TN FN
@@ -151,16 +171,16 @@ class NeuralNetwork(Classifier):
         #Compute ROC
     
 def main():
-    neuralNet = NeuralNetwork(2,3,1)
+    neuralNet = NeuralNetwork(2,4,1)
     
     trainingSet = np.matrix([
                                  [[0,0],[0]],
-                                 [[0,1],[0]],
-                                 [[1,0],[0]],
-                                 [[1,1],[1]]
+                                 [[0,1],[1]],
+                                 [[1,0],[1]],
+                                 [[1,1],[0]]
                              ])
     
-    neuralNet.train(trainingSet,iterations=1000,N_learningRate=0.1)
+    neuralNet.train(trainingSet,iterations=3000,N_learningRate=0.1,M_momentum=0.3)
     neuralNet.test(trainingSet)
     
 main();
