@@ -32,46 +32,93 @@ class NeuralNetwork(Classifier):
 #         return 1 - y**2
         return (1-y) * y
     
-    def computeOutput(self,inputVectors):                       
-        #predictedOutput
-        predictedOutputVector = 0
+    def computeOutput(self,inputVector):                                                               
+        self.activationsForInputLayer = inputVector[0,0]
+        
+        #add bias input
+        self.activationsForInputLayer = np.insert(self.activationsForInputLayer,0,-1,axis=0)
+        
+        #hiddenLayer activations is sigmoid(dot product of inputActivation and inputWeights)
+        self.activationsForHiddenLayer = self.vectorizedSigmoid(np.dot(self.activationsForInputLayer,self.weightsBetweenInputAndHiddenLayer))
+#         print "\nActivations for HiddenLayer"
+#         print "**************************"
+#         print self.activationsForHiddenLayer
+        
+        #outputLayer activations is sigmoid(dot product of hiddenActivation and hiddenWeights)
+        self.activationsForOutputLayer = self.vectorizedSigmoid(np.dot(self.activationsForHiddenLayer,self.weightsBetweenHiddenAndOutputLayer))
+#         print "\nActivations for OutputLayer"
+#         print "**************************"
+#         print self.activationsForOutputLayer
+        
+    def backPropagation(self,targetOutputVectors, N_learningRate):
+        
+        #ERROR and DELTA computation : DELTA is GRADIENT * Error
+        ########################################################
+        outputDelta = np.zeros(np.shape(self.activationsForOutputLayer)[0])
+        hiddenDelta = np.zeros(np.shape(self.activationsForHiddenLayer)[0])
+        error = 0.0
+        #for each outputNeuron
+        for outputNeuronIndex in range(self.numberOfOutputNeurons):
+            #Compute error between the target and predicted values
+            error = targetOutputVectors[outputNeuronIndex,0] - self.activationsForOutputLayer[outputNeuronIndex]
+            #Compute gradientOfThePredictedValue * error
+            outputDelta[outputNeuronIndex] = error * self.differentialOfSigmoid(self.activationsForOutputLayer[outputNeuronIndex])        
+            
+        #for each hidden neuron
+        for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):
+            error = 0.0
+            #Sum the errors from all the output neurons
+            for outputNeuronIndex in range(self.numberOfOutputNeurons):
+                error = error + self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex]
+            
+            #Multiply the error with the gradientOfTheOutputAtTheHiddenLayer
+            hiddenDelta[hiddenNeuronIndex] = error * self.differentialOfSigmoid(self.activationsForHiddenLayer[hiddenNeuronIndex])            
                 
-        for inputVector in inputVectors:
-            self.activationsForInputLayer = inputVector[0,0]
-            
-            #add bias input
-            self.activationsForInputLayer = np.insert(self.activationsForInputLayer,0,-1,axis=0)
-            
-            #hiddenLayer activations is sigmoid(dot product of inputActivation and inputWeights)
-            self.activationsForHiddenLayer = self.vectorizedSigmoid(np.dot(self.activationsForInputLayer,self.weightsBetweenInputAndHiddenLayer))
-            print "\nActivations for HiddenLayer"
-            print "**************************"
-            print self.activationsForHiddenLayer
-            
-            #outputLayer activations is sigmoid(dot product of hiddenActivation and hiddenWeights)
-            self.activationsForOutputLayer = self.vectorizedSigmoid(np.dot(self.activationsForHiddenLayer,self.weightsBetweenHiddenAndOutputLayer))
-            print "\nActivations for OutputLayer"
-            print "**************************"
-            print self.activationsForOutputLayer
-            
-            if(np.shape(predictedOutputVector) != ()):
-                predictedOutputVector = np.append(predictedOutputVector,self.activationsForOutputLayer);                
-            else:
-                predictedOutputVector = self.activationsForOutputLayer
+        #WEIGHT UPDATES
+        ###############
+        
+        #Update weights for hiddenLayer
+        for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):
+            for outputNeuronIndex in range(self.numberOfOutputNeurons):
+                #TODO: Check if the updates should be added or subtracted
+                update = (outputDelta[outputNeuronIndex] * self.activationsForHiddenLayer[hiddenNeuronIndex])
+                #TODO: Check if Momentum is required - to get out of local minima.
+                self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex] = self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex] + N_learningRate * update
+                      
+        #Update weights for inputLayer
+        for inputNeuronIndex in range(self.numberOfInputNeurons):
+            for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):
+                #TODO: Check if the updates should be added or subtracted
+                update = (hiddenDelta[hiddenNeuronIndex] * self.activationsForInputLayer[inputNeuronIndex])
+                #TODO: Check if Momentum is required - to get out of local minima.
+                self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex] = self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex]  + N_learningRate * update
                 
-        print predictedOutputVector
-        return predictedOutputVector                
+        #Show the amount of error with squaredDifferenceError
+        error = 0.0
+        for outputNeuronIndex in range(self.numberOfOutputNeurons):
+            error = error + ((0.5)*((targetOutputVectors[outputNeuronIndex,0] - self.activationsForOutputLayer[outputNeuronIndex])**2))        
+        return error
     
-    def train(self,trainingSet,iterations=1):
+    def train(self,trainingSet,iterations=1000,N_learningRate=0.3):
         print "**************************"
         print "TRAINING"
         print "**************************"     
         inputVectors = trainingSet[:,0]
-        targetOutputVector = trainingSet[:,1]        
-        for iteration in range(iterations):   
-            predictedOutputVector = self.computeOutput(inputVectors)
-            #TODO: Check error
-            #TODO: Back propagate error
+        targetOutputVector = trainingSet[:,1]                
+        for iteration in range(iterations):    
+            error = 0.0           
+            predictedOutputVector = 0
+            for inputVector in inputVectors:
+                self.computeOutput(inputVector)                
+                if(np.shape(predictedOutputVector) != ()):
+                    predictedOutputVector = np.append(predictedOutputVector,self.activationsForOutputLayer);                
+                else:
+                    predictedOutputVector = self.activationsForOutputLayer
+                error = error + self.backPropagation(targetOutputVector, N_learningRate)
+            print "error:"+str(error)                
+#             print "Predicted Output(TRAINING):"
+#             print predictedOutputVector
+            
         
     def test(self,testingSet):
         print "**************************"
@@ -79,7 +126,15 @@ class NeuralNetwork(Classifier):
         print "**************************"
         inputVectors = testingSet[:,0]
         self.patientLabels = testingSet[:,1]
-        self.predictedPatientLabels = self.computeOutput(inputVectors)
+        predictedOutputVector = 0
+        for inputVector in inputVectors:
+            self.computeOutput(inputVector)                
+            if(np.shape(predictedOutputVector) != ()):
+                predictedOutputVector = np.append(predictedOutputVector,self.activationsForOutputLayer);                
+            else:
+                predictedOutputVector = self.activationsForOutputLayer
+        print "Predicted Output(TESTING):"
+        print predictedOutputVector        
         
         #Compute TP FP TN FN
 #         self.computeTPTNFPFN()
@@ -96,7 +151,7 @@ class NeuralNetwork(Classifier):
         #Compute ROC
     
 def main():
-    neuralNet = NeuralNetwork(2,2,1)
+    neuralNet = NeuralNetwork(2,3,1)
     
     trainingSet = np.matrix([
                                  [[0,0],[0]],
@@ -105,7 +160,7 @@ def main():
                                  [[1,1],[1]]
                              ])
     
-    neuralNet.train(trainingSet)
+    neuralNet.train(trainingSet,iterations=1000,N_learningRate=0.1)
     neuralNet.test(trainingSet)
     
 main();
