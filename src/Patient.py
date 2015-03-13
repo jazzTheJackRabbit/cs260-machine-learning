@@ -53,3 +53,4 @@ class Patient:
 		print self.diastolicMeasurements
 		print "\n##################\nSystolic Measurements for Patient#"+str(self.patientID)+"\n##################\n"
 		print self.systolicMeasurements
+			

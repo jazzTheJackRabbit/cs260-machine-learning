@@ -1,4 +1,5 @@
 from Classifier import Classifier
+from DataPreparation import DataPreparation
 import csv
 import random
 import math
@@ -77,17 +78,15 @@ class NearestNeighbor(Classifier):
         return classLabelForReferencePoint
         
 def main():
-    knn = NearestNeighbor(3)    
-
-    dataset = np.matrix([
-                                [[1.5,1.5],[0]],
-                                [[5,5],[1]],
-                                [[3,3],[0]],
-                                [[4,4],[1]],
-                                [[1,1],[0]],
-                                [[2,2],[0]],
-                                [[6,6],[1]]
-                            ])
+           
+    #Prepare Data 
+    dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
+    allPatients = dataPreparation.preparePatientData()    
+    datasetList = dataPreparation.computeFeatures("mean", allPatients)                
+    dataset = np.matrix(datasetList)
+    
+    #Create the NearestNeighbor Model
+    knn = NearestNeighbor(3)
         
     np.random.shuffle(dataset)
     predictedOutputVector = []     

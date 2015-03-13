@@ -1,4 +1,5 @@
 from Classifier import Classifier
+from DataPreparation import DataPreparation
 import numpy as np
 import math
 import random
@@ -142,8 +143,7 @@ class NeuralNetwork(Classifier):
         
     def classify(self,testingSet):
         print "**************************"
-        print "TESTING"
-        print "**************************"
+        print "TESTING"        
         self.patientLabels = []
         inputVectors = testingSet[:,0]                        
         for label in testingSet[:,1]:
@@ -163,32 +163,29 @@ class NeuralNetwork(Classifier):
                 
 #         self.printActualsVsPredictedLabels()
 #         self.evaluatePredictions()
+        print self.activationsForOutputLayer
+        print "**************************"
         return self.activationsForOutputLayer
             
 def main():
-    neuralNet = NeuralNetwork(2,5,1)
     
-    dataset = np.matrix([
-                                [[0,0],[0]],
-                                [[0,1],[1]],
-                                [[1,0],[1]],
-                                [[1,1],[0]]
-                            ])  
-
-#     dataset = np.matrix([
-#                                 [[1.5,1.5],[0]],
-#                                 [[5,5],[1]],
-#                                 [[3,3],[0]],
-#                                 [[4,4],[1]],
-#                                 [[1,1],[0]],
-#                                 [[2,2],[0]],
-#                                 [[6,6],[1]]
-#                             ])
-        
+    #Prepare Data
+    dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
+    allPatients = dataPreparation.preparePatientData()    
+    datasetList = dataPreparation.computeFeatures("mean", allPatients)    
+            
+    dataset = np.matrix(datasetList)
     np.random.shuffle(dataset)
+    
+    #Create NeuralNetwork model      
+    neuralNet = NeuralNetwork(2,5,1)        
+    
     predictedOutputVector = []
     roundedPredictedOutputVector = []     
     for i in range(len(dataset)):
+        print "**************************"
+        print "EPOCH:"+str(i+1)+"/"+str(len(dataset))
+        print "**************************"
         #testingSet is top element
         referencePointLeftOutForTest = dataset[0]
         
@@ -199,7 +196,8 @@ def main():
         trainingSet = dataset
         
         #create classification label list here.     
-        neuralNet.train(trainingSet,iterations=1000,N_learningRate=0.3,M_momentum=0.4)           
+        neuralNet.train(trainingSet,iterations=1000,N_learningRate=0.3,M_momentum=0.4)
+        neuralNet.randomizeWeights(0.2, 2.0)           
         classificationLabel = neuralNet.classify(referencePointLeftOutForTest)
         predictedOutputVector = np.append(predictedOutputVector,classificationLabel);
         roundedPredictedOutputVector = np.append(roundedPredictedOutputVector,round(classificationLabel));
@@ -207,6 +205,7 @@ def main():
         #add reference Point back into the dataset.
         dataset = np.append(dataset, referencePointLeftOutForTest,axis=0)
 
+    #EVALUATION
     neuralNet.patientLabels = []
     for label in dataset[:,1]:
         neuralNet.patientLabels = np.append(neuralNet.patientLabels,label[0,0])
@@ -214,6 +213,12 @@ def main():
     
     neuralNet.evaluatePredictions()
     neuralNet.printActualsVsPredictedLabels()
+    
+    print "\nPredicted REALVALUED Output(TESTING):"
+    print predictedOutputVector
+    
+    print "Actual Output(TESTING):"
+    print neuralNet.patientLabels
     
 main();
     
