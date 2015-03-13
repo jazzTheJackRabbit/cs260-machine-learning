@@ -115,6 +115,7 @@ class NeuralNetwork(Classifier):
         return error
     
     def train(self,trainingSet,iterations=1000,N_learningRate=0.1,M_momentum=0.3):
+        #iterations are actually training epochs
         print "**************************"
         print "TRAINING"
         print "**************************"     
@@ -134,7 +135,7 @@ class NeuralNetwork(Classifier):
 #                 print "BackPropChange:"+str(backPropChange)
                 error = error + backPropChange
             if iteration % 100 == 0:
-                print('error %-.5f' % error)                            
+                print 'error @iteration:'+ str(iteration) + ' =' + str(error)                            
 #             print "Predicted Output(TRAINING):"
 #             print predictedOutputVector
             
@@ -143,8 +144,11 @@ class NeuralNetwork(Classifier):
         print "**************************"
         print "TESTING"
         print "**************************"
-        inputVectors = testingSet[:,0]
-        self.patientLabels = testingSet[:,1]
+        self.patientLabels = []
+        inputVectors = testingSet[:,0]                        
+        for label in testingSet[:,1]:
+            self.patientLabels = np.append(self.patientLabels,label[0,0])
+                    
         predictedOutputVector = 0
         for inputVector in inputVectors:
             self.computeOutput(inputVector)                
@@ -152,36 +156,28 @@ class NeuralNetwork(Classifier):
                 predictedOutputVector = np.append(predictedOutputVector,self.activationsForOutputLayer);                
             else:
                 predictedOutputVector = self.activationsForOutputLayer
-        print "Predicted Output(TESTING):"
+        
         roundVector = np.vectorize(round)
-        print predictedOutputVector        
-        
-        #Compute TP FP TN FN
-#         self.computeTPTNFPFN()
-        
-        #Compute Accuracy
-#         self.computeAccuracy()
-        
-        #Compute Sensitivity
-        #Compute Specificity
-        #Compute Precision
-        #Compute Recall
-        #Compute F-Measure
-        #Compute MCC
-        #Compute ROC
-    
+        predictedOutputVector = roundVector(predictedOutputVector)
+        self.predictedPatientLabels = predictedOutputVector            
+                
+        self.printActualsVsPredictedLabels()
+        self.evaluatePredictions()
+            
 def main():
-    neuralNet = NeuralNetwork(2,4,1)
+    neuralNet = NeuralNetwork(2,5,1)
     
     trainingSet = np.matrix([
-                                 [[0,0],[0]],
-                                 [[0,1],[1]],
-                                 [[1,0],[1]],
-                                 [[1,1],[0]]
-                             ])
+                                [[0,0],[0]],
+                                [[0,1],[1]],
+                                [[1,0],[1]],
+                                [[1,1],[0]]
+                            ])
     
-    neuralNet.train(trainingSet,iterations=3000,N_learningRate=0.1,M_momentum=0.3)
-    neuralNet.test(trainingSet)
+    testingSet = trainingSet
+    
+    neuralNet.train(trainingSet,iterations=1000,N_learningRate=0.3,M_momentum=0.4)    
+    neuralNet.test(testingSet)
     
 main();
     
