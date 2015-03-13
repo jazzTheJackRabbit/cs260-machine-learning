@@ -29,10 +29,14 @@ class Classifier:
 		self.falsePositives = np.sum(np.dot(np.transpose(self.predictedPatientLabels),(self.patientLabels == 0).astype(int)))
 		self.falseNegatives = np.sum(np.dot(np.transpose((self.predictedPatientLabels == 0).astype(int)),self.patientLabels))
 		
-		print "TP:"+str(self.truePositives)
-		print "TN:"+str(self.trueNegatives)
+		print("")
+		print "Positive Class:"
+		print "TP:"+str(self.truePositives)		
 		print "FP:"+str(self.falsePositives)
+		print "Negative Class:"
+		print "TN:"+str(self.trueNegatives)
 		print "FN:"+str(self.falseNegatives)
+		print("")
 	
 	def computeAccuracy(self):
 		self.accuracy = (self.truePositives + self.trueNegatives)/(self.truePositives + self.trueNegatives + self.falseNegatives + self.falsePositives)

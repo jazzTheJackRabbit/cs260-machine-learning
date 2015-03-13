@@ -113,6 +113,7 @@ def main():
         knn.patientLabels = np.append(knn.patientLabels,label[0,0])
     knn.predictedPatientLabels = predictedOutputVector
     knn.evaluatePredictions()
+    knn.printActualsVsPredictedLabels()
     
 main();
      

@@ -140,7 +140,7 @@ class NeuralNetwork(Classifier):
 #             print predictedOutputVector
             
         
-    def test(self,testingSet):
+    def classify(self,testingSet):
         print "**************************"
         print "TESTING"
         print "**************************"
@@ -149,35 +149,71 @@ class NeuralNetwork(Classifier):
         for label in testingSet[:,1]:
             self.patientLabels = np.append(self.patientLabels,label[0,0])
                     
-        predictedOutputVector = 0
+#         predictedOutputVector = 0
         for inputVector in inputVectors:
             self.computeOutput(inputVector)                
-            if(np.shape(predictedOutputVector) != ()):
-                predictedOutputVector = np.append(predictedOutputVector,self.activationsForOutputLayer);                
-            else:
-                predictedOutputVector = self.activationsForOutputLayer
+#             if(np.shape(predictedOutputVector) != ()):
+#                 predictedOutputVector = np.append(predictedOutputVector,self.activationsForOutputLayer);                
+#             else:
+#                 predictedOutputVector = self.activationsForOutputLayer
         
-        roundVector = np.vectorize(round)
-        predictedOutputVector = roundVector(predictedOutputVector)
-        self.predictedPatientLabels = predictedOutputVector            
+#         roundVector = np.vectorize(round)
+#         predictedOutputVector = roundVector(predictedOutputVector)
+#         self.predictedPatientLabels = predictedOutputVector            
                 
-        self.printActualsVsPredictedLabels()
-        self.evaluatePredictions()
+#         self.printActualsVsPredictedLabels()
+#         self.evaluatePredictions()
+        return self.activationsForOutputLayer
             
 def main():
     neuralNet = NeuralNetwork(2,5,1)
     
-    trainingSet = np.matrix([
+    dataset = np.matrix([
                                 [[0,0],[0]],
                                 [[0,1],[1]],
                                 [[1,0],[1]],
                                 [[1,1],[0]]
-                            ])
+                            ])  
+
+#     dataset = np.matrix([
+#                                 [[1.5,1.5],[0]],
+#                                 [[5,5],[1]],
+#                                 [[3,3],[0]],
+#                                 [[4,4],[1]],
+#                                 [[1,1],[0]],
+#                                 [[2,2],[0]],
+#                                 [[6,6],[1]]
+#                             ])
+        
+    np.random.shuffle(dataset)
+    predictedOutputVector = []
+    roundedPredictedOutputVector = []     
+    for i in range(len(dataset)):
+        #testingSet is top element
+        referencePointLeftOutForTest = dataset[0]
+        
+        #pop top element
+        dataset = np.delete(dataset,0,axis=0)
+        
+        #trainingSet is the rest
+        trainingSet = dataset
+        
+        #create classification label list here.     
+        neuralNet.train(trainingSet,iterations=1000,N_learningRate=0.3,M_momentum=0.4)           
+        classificationLabel = neuralNet.classify(referencePointLeftOutForTest)
+        predictedOutputVector = np.append(predictedOutputVector,classificationLabel);
+        roundedPredictedOutputVector = np.append(roundedPredictedOutputVector,round(classificationLabel));
+        
+        #add reference Point back into the dataset.
+        dataset = np.append(dataset, referencePointLeftOutForTest,axis=0)
+
+    neuralNet.patientLabels = []
+    for label in dataset[:,1]:
+        neuralNet.patientLabels = np.append(neuralNet.patientLabels,label[0,0])
+    neuralNet.predictedPatientLabels = roundedPredictedOutputVector
     
-    testingSet = trainingSet
-    
-    neuralNet.train(trainingSet,iterations=1000,N_learningRate=0.3,M_momentum=0.4)    
-    neuralNet.test(testingSet)
+    neuralNet.evaluatePredictions()
+    neuralNet.printActualsVsPredictedLabels()
     
 main();
     
