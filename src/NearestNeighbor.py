@@ -56,44 +56,63 @@ class NearestNeighbor(Classifier):
         #TODO: change all k to self.k
         k=self.k            
         
-        featureVectorsForTrainingSet = testingSet[:,0]
-        actualOutputLabelsForTrainingSet = testingSet[:,1]
+        featureVectorsForTestingSet = testingSet[:,0]
+        actualOutputLabelsForTestingSet = testingSet[:,1]
         
         #Setup the ACTUAL patient labels
-        self.patientLabels = []
-        for label in actualOutputLabelsForTrainingSet:
-            self.patientLabels = np.append(self.patientLabels,label[0,0])
+#         self.patientLabels = []
+#         for label in actualOutputLabelsForTestingSet:
+#             self.patientLabels = np.append(self.patientLabels,label[0,0])
             
-        predictedOutputVector = []              
-        for referencePointIndex in range(len(featureVectorsForTrainingSet)):
-            featureOfReference = np.matrix(featureVectorsForTrainingSet[referencePointIndex][0,0])            
+#         predictedOutputVector = []              
+        for referencePointIndex in range(len(featureVectorsForTestingSet)):
+            featureOfReference = np.matrix(featureVectorsForTestingSet[referencePointIndex][0,0])            
             classLabelForReferencePoint = self.classifyReferencePoint(featureOfReference, trainingSet, k)
-            predictedOutputVector = np.append(predictedOutputVector,classLabelForReferencePoint);                                
-        self.predictedPatientLabels = predictedOutputVector
-        
-        self.printActualsVsPredictedLabels()
-        self.evaluatePredictions()
+#             predictedOutputVector = np.append(predictedOutputVector,classLabelForReferencePoint);                                
+#         self.predictedPatientLabels = predictedOutputVector
+#         
+#         self.printActualsVsPredictedLabels()
+#         self.evaluatePredictions()
             
+        return classLabelForReferencePoint
         
 def main():
     knn = NearestNeighbor(3)    
 
-    #TODO: setup the Leave one out cross validation
-#     trainingSet,testingSet = crossValidate(dataset)
-
-    trainingSet = np.matrix([
+    dataset = np.matrix([
                                 [[1.5,1.5],[0]],
                                 [[5,5],[1]],
                                 [[3,3],[0]],
-                                [[4,4],[1]]
-                            ])
-    testingSet = np.matrix([
+                                [[4,4],[1]],
                                 [[1,1],[0]],
                                 [[2,2],[0]],
-                                [[6,6],[1]],                                
+                                [[6,6],[1]]
                             ])
         
-    knn.classify(trainingSet,testingSet)
+    np.random.shuffle(dataset)
+    predictedOutputVector = []     
+    for i in range(len(dataset)):
+        #testingSet is top element
+        referencePointLeftOutForTest = dataset[0]
+        
+        #pop top element
+        dataset = np.delete(dataset,0,axis=0)
+        
+        #trainingSet is the rest
+        trainingSet = dataset
+        
+        #create classification label list here.                
+        classificationLabel = knn.classify(trainingSet,referencePointLeftOutForTest)
+        predictedOutputVector = np.append(predictedOutputVector,classificationLabel);
+        
+        #add reference Point back into the dataset.
+        dataset = np.append(dataset, referencePointLeftOutForTest,axis=0)
+
+    knn.patientLabels = []
+    for label in dataset[:,1]:
+        knn.patientLabels = np.append(knn.patientLabels,label[0,0])
+    knn.predictedPatientLabels = predictedOutputVector
+    knn.evaluatePredictions()
     
 main();
      

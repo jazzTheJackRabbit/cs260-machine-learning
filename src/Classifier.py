@@ -97,4 +97,5 @@ class Classifier:
 		print self.predictedPatientLabels
 		
 		print "Actual Output(TESTING):"
-		print self.patientLabels
+		print self.patientLabels		
+		
