@@ -1,5 +1,5 @@
 .DS_Store
 *.pyc
-KNN.py
-NeuralNetwork1.py
+src/KNN.py
+src/NeuralNetwork1.py
 
