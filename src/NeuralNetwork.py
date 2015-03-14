@@ -41,12 +41,12 @@ class NeuralNetwork(Classifier):
                 self.weightsBetweenHiddenAndOutputLayer[hiddenNeuronIndex,outputNeuronIndex] = ((initialWeightIntensityBetweenHiddenAndOutput - (-1*initialWeightIntensityBetweenHiddenAndOutput))*random.random()) + (-1*initialWeightIntensityBetweenHiddenAndOutput)
                 
     def sigmoid(self,x):
-#         return math.tanh(x)
-        return 1/(1+(math.e**(-x)))
+        return math.tanh(x)
+#         return 1/(1+(math.e**(-x)))
     
     def differentialOfSigmoid(self,y):
-#         return 1 - y**2
-        return (1-y) * y
+        return 1 - y**2
+#         return (1-y) * y
     
     def computeOutput(self,inputVector):                                                               
         self.activationsForInputLayer = inputVector[0,0]
@@ -151,7 +151,8 @@ class NeuralNetwork(Classifier):
                     
 #         predictedOutputVector = 0
         for inputVector in inputVectors:
-            self.computeOutput(inputVector)                
+            self.computeOutput(inputVector)           
+            self.activationsForOutputLayer = (0.5)*(self.activationsForOutputLayer + 1)     
 #             if(np.shape(predictedOutputVector) != ()):
 #                 predictedOutputVector = np.append(predictedOutputVector,self.activationsForOutputLayer);                
 #             else:
@@ -196,7 +197,7 @@ def main():
         trainingSet = dataset
         
         #create classification label list here.     
-        neuralNet.train(trainingSet,iterations=1000,N_learningRate=0.3,M_momentum=0.4)
+        neuralNet.train(trainingSet,iterations=500,N_learningRate=0.2,M_momentum=0.3)
         neuralNet.randomizeWeights(0.2, 2.0)           
         classificationLabel = neuralNet.classify(referencePointLeftOutForTest)
         predictedOutputVector = np.append(predictedOutputVector,classificationLabel);

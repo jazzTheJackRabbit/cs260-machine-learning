@@ -96,9 +96,15 @@ class Classifier:
 		#Compute MCC
 		#Compute ROC
 		
-	def printActualsVsPredictedLabels(self):
+	def printActualsVsPredictedLabels(self,transpose=0):
 		print "\nPredicted Output(TESTING):"
-		print self.predictedPatientLabels
+		if(transpose):
+			print np.transpose(np.matrix(self.predictedPatientLabels))
+		else:
+			print self.predictedPatientLabels
 		
 		print "Actual Output(TESTING):"
-		print self.patientLabels	
+		if(transpose):
+			print np.transpose(np.matrix(self.patientLabels))
+		else:		
+			print self.patientLabels

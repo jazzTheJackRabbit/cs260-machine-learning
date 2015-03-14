@@ -86,11 +86,14 @@ def main():
     dataset = np.matrix(datasetList)
     
     #Create the NearestNeighbor Model
-    knn = NearestNeighbor(3)
+    knn = NearestNeighbor(4)
         
     np.random.shuffle(dataset)
     predictedOutputVector = []     
     for i in range(len(dataset)):
+        print "**************************"
+        print "EPOCH:"+str(i+1)+"/"+str(len(dataset))
+        print "**************************"
         #testingSet is top element
         referencePointLeftOutForTest = dataset[0]
         
@@ -111,8 +114,10 @@ def main():
     for label in dataset[:,1]:
         knn.patientLabels = np.append(knn.patientLabels,label[0,0])
     knn.predictedPatientLabels = predictedOutputVector
+        
     knn.evaluatePredictions()
-    knn.printActualsVsPredictedLabels()
+    print "\nNumber of Neighbors = "+str(knn.k)    
+    knn.printActualsVsPredictedLabels()    
     
 main();
      
