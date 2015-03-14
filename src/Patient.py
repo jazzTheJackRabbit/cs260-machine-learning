@@ -19,7 +19,9 @@ class Patient:
 		self.standardDeviation = (0,0)	
 		self.maxValue = (0,0)
 		self.minValue = (0,0)
-		self.differenceOfMaxAndMinValue = (0,0)	
+		self.differenceOfMaxAndMinValue = (0,0)
+		self.skewnessOfMeasurements = (0,0)
+		self.kurtosisOfMeasurements = (0,0)	
 		
 		self.parseFileName(filename)
 		
@@ -47,6 +49,31 @@ class Patient:
 		self.maxValue = (np.amax(self.diastolicMeasurements),np.amax(self.systolicMeasurements))
 		self.minValue = (np.amin(self.diastolicMeasurements),np.amin(self.systolicMeasurements))
 		self.differenceOfMaxAndMinValue = (self.maxValue[0] - self.minValue[0],self.maxValue[1] - self.minValue[1])
+	
+	def computeSkewness(self):
+		self.computeMean()
+		self.computeVariance()
+		
+		differenceOfDiastolic = np.subtract(self.diastolicMeasurements,self.meanOfMeasurements[0])
+		differenceOfSystolic = np.subtract(self.systolicMeasurements,self.meanOfMeasurements[1])
+		
+		skewnessOfDiastolic = ((np.dot(np.transpose(differenceOfDiastolic),np.multiply(differenceOfDiastolic,differenceOfDiastolic))/np.shape(differenceOfDiastolic)[0])/(self.standardDeviation[0]**3))[0,0]
+		skewnessOfSystolic = ((np.dot(np.transpose(differenceOfSystolic),np.multiply(differenceOfSystolic,differenceOfSystolic))/np.shape(differenceOfSystolic)[0])/(self.standardDeviation[1]**3))[0,0]
+		
+		self.skewnessOfMeasurements = (skewnessOfDiastolic,skewnessOfSystolic)
+		return self.skewnessOfMeasurements
+	
+	def computeKurtosis(self):
+		self.computeMean()
+		self.computeVariance()
+		
+		differenceOfDiastolic = np.subtract(self.diastolicMeasurements,self.meanOfMeasurements[0])
+		differenceOfSystolic = np.subtract(self.systolicMeasurements,self.meanOfMeasurements[1])
+		
+		kurtosisOfDiastolic = ((np.dot(np.transpose(differenceOfDiastolic),np.multiply(differenceOfDiastolic,np.multiply(differenceOfDiastolic,differenceOfDiastolic)))/np.shape(differenceOfDiastolic)[0])/(self.standardDeviation[0]**4))[0,0]
+		kurtosisOfSystolic = ((np.dot(np.transpose(differenceOfSystolic),np.multiply(differenceOfSystolic,np.multiply(differenceOfSystolic,differenceOfSystolic)))/np.shape(differenceOfSystolic)[0])/(self.standardDeviation[1]**4))[0,0]
+		
+		self.kurtosisOfMeasurements = (kurtosisOfDiastolic,kurtosisOfSystolic)
 	
 	def printMeasurements(self):
 		print "\n##################\nDiastolic Measurements for Patient#"+str(self.patientID)+"\n##################\n"

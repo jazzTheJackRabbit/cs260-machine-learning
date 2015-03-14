@@ -90,7 +90,23 @@ class DataPreparation:
                 dataPoint = [allPatients[patientIndex].differenceOfMaxAndMinValue[0],allPatients[patientIndex].differenceOfMaxAndMinValue[1]]
                 outputLabel = [allPatients[patientIndex].classificationLabel]        
                 featureVectors.append([dataPoint,outputLabel])
+                
+        elif typeOfFeature == "skewness":
+            print "\n##################\n Skewness\n##################\n"            
+            for patientIndex in range(len(allPatients)):
+                allPatients[patientIndex].computeSkewness()
+                dataPoint = [allPatients[patientIndex].skewnessOfMeasurements[0],allPatients[patientIndex].skewnessOfMeasurements[1]]
+                outputLabel = [allPatients[patientIndex].classificationLabel]        
+                featureVectors.append([dataPoint,outputLabel])
                             
+        elif typeOfFeature == "kurtosis":
+            print "\n##################\n Kurtosis\n##################\n"            
+            for patientIndex in range(len(allPatients)):
+                allPatients[patientIndex].computeKurtosis()
+                dataPoint = [allPatients[patientIndex].kurtosisOfMeasurements[0],allPatients[patientIndex].kurtosisOfMeasurements[1]]
+                outputLabel = [allPatients[patientIndex].classificationLabel]        
+                featureVectors.append([dataPoint,outputLabel])
+                
         return featureVectors        
     
 # def main():

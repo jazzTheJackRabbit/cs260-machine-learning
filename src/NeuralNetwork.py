@@ -169,6 +169,11 @@ class NeuralNetwork(Classifier):
         return self.activationsForOutputLayer
             
 def main():
+    neuralNetworkConfig={
+                         'iterations':600,
+                         'learningRate':0.05,
+                         'momentum':0.4
+                         }
     
     #Prepare Data
     dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
@@ -197,7 +202,7 @@ def main():
         trainingSet = dataset
         
         #create classification label list here.     
-        neuralNet.train(trainingSet,iterations=500,N_learningRate=0.2,M_momentum=0.3)
+        neuralNet.train(trainingSet,iterations=neuralNetworkConfig['iterations'],N_learningRate=neuralNetworkConfig['learningRate'],M_momentum=neuralNetworkConfig['momentum'])
         neuralNet.randomizeWeights(0.2, 2.0)           
         classificationLabel = neuralNet.classify(referencePointLeftOutForTest)
         predictedOutputVector = np.append(predictedOutputVector,classificationLabel);
@@ -213,6 +218,7 @@ def main():
     neuralNet.predictedPatientLabels = roundedPredictedOutputVector
     
     neuralNet.evaluatePredictions()
+    print "\nNeural Network configuration: iterations="+str(neuralNetworkConfig['iterations'])+" | LearningRate="+str(neuralNetworkConfig['learningRate'])+" | Momentum:"+str(neuralNetworkConfig['momentum'])
     neuralNet.printActualsVsPredictedLabels()
     
     print "\nPredicted REALVALUED Output(TESTING):"
