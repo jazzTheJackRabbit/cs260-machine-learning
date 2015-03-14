@@ -1,5 +1,2 @@
 .DS_Store
 *.pyc
-src/KNN.py
-src/NeuralNetwork1.py
-
