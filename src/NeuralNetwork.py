@@ -103,10 +103,8 @@ class NeuralNetwork(Classifier):
                       
         #Update weights for inputLayer
         for inputNeuronIndex in range(self.numberOfInputNeurons):
-            for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):
-                #TODO: Check if the updates should be added or subtracted
-                update = (hiddenDelta[hiddenNeuronIndex] * self.activationsForInputLayer[inputNeuronIndex])
-                #TODO: Check if Momentum is required - to get out of local minima.
+            for hiddenNeuronIndex in range(self.numberOfHiddenNeurons):                
+                update = (hiddenDelta[hiddenNeuronIndex] * self.activationsForInputLayer[inputNeuronIndex])                
                 self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex] = self.weightsBetweenInputAndHiddenLayer[inputNeuronIndex,hiddenNeuronIndex]  + (N_learningRate * update) + (M_momentum * self.previousUpdateForInputHiddenLayers[inputNeuronIndex,hiddenNeuronIndex])
                 self.previousUpdateForInputHiddenLayers[inputNeuronIndex,hiddenNeuronIndex] = update
                 
