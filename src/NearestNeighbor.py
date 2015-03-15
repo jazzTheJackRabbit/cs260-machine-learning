@@ -125,8 +125,8 @@ def main():
         for label in dataset[:,1]:
             knn.patientLabels = np.append(knn.patientLabels,label[0,0])
         #Flip the classifications        
-        knn.predictedPatientLabels = predictedOutputVector
-#         knn.predictedPatientLabels = (predictedOutputVector==0).astype(float)
+        # knn.predictedPatientLabels = predictedOutputVector
+        knn.predictedPatientLabels = (predictedOutputVector==0).astype(float)
 
             
         knn.evaluatePredictions()
