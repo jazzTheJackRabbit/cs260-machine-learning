@@ -80,7 +80,7 @@ class NearestNeighbor(Classifier):
 def main():
            
     #Prepare Data 
-    datasetToUse = "new"
+    datasetToUse = "old"
     if(datasetToUse == "old"):
         dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
     else:
@@ -92,9 +92,9 @@ def main():
 #     datasetList = dataPreparation.computeFeatures("mean", allPatients)
 #     datasetList = dataPreparation.computeFeatures("variance", allPatients)
 #     datasetList = dataPreparation.computeFeatures("maxMinDiff", allPatients)
-#     datasetList = dataPreparation.computeFeatures("skewness", allPatients)
+    datasetList = dataPreparation.computeFeatures("skewness", allPatients)
 #     datasetList = dataPreparation.computeFeatures("kurtosis", allPatients)    
-    datasetList = dataPreparation.computeFeatures("pearsonsCorrelationCoefficient", allPatients)  
+#     datasetList = dataPreparation.computeFeatures("pearsonsCorrelationCoefficient", allPatients)  
                   
     dataset = np.matrix(datasetList)
     
