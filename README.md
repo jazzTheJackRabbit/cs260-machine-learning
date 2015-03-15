@@ -2,12 +2,12 @@ Instructions to run the algorithms.
 
 The Directory structure for the src/ folder is as follows:
 
-src/
-├── Classifier.py
-├── DataPreparation.py
-├── NearestNeighbor.py
-├── NeuralNetwork.py
-└── Patient.py
+    src/
+    ├── Classifier.py
+    ├── DataPreparation.py
+    ├── NearestNeighbor.py
+    ├── NeuralNetwork.py
+    └── Patient.py
 
 To run the neural network:
 - Run the following command:
