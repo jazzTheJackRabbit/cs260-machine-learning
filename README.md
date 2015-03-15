@@ -9,6 +9,12 @@ The Directory structure for the src/ folder is as follows:
     ├── NeuralNetwork.py
     └── Patient.py
 
+The algorithms/models have been implemented in Python.
+
+To successfully run the code, you will need to have numpy setup. In case, numpy is not installed, you can follow the instructions at:
+
+    http://docs.scipy.org/doc/numpy/user/install.html
+
 To run the neural network:
 -Run the following command:
 
