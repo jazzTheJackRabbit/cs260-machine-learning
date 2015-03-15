@@ -15,13 +15,11 @@ To successfully run the code, you will need to have numpy setup. In case, numpy 
 
     http://docs.scipy.org/doc/numpy/user/install.html
 
-To run the neural network:
--Run the following command:
+To run the neural network, run the following command:
 
 	python NeuralNetwork.py
 
-To run the nearest neighbor model
--Run the following command:
+To run the nearest neighbor model, run the following command:
 
 	python NearestNeighbor.py
 
