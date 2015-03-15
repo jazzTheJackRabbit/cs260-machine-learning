@@ -10,15 +10,17 @@ The Directory structure for the src/ folder is as follows:
     └── Patient.py
 
 To run the neural network:
-- Run the following command:
+-Run the following command:
+
 	python NeuralNetwork.py
 
 To run the nearest neighbor model
 -Run the following command:
+
 	python NearestNeighbor.py
 
 
-The main() functions in both the files will take care of reading the datasets. The code runs as follows for:
+The `main()` functions in both the files will take care of reading the datasets. The code runs as follows for:
 	
 Neural Net:
 
