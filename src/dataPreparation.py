@@ -106,9 +106,20 @@ class DataPreparation:
                 dataPoint = [allPatients[patientIndex].kurtosisOfMeasurements[0],allPatients[patientIndex].kurtosisOfMeasurements[1]]
                 outputLabel = [allPatients[patientIndex].classificationLabel]        
                 featureVectors.append([dataPoint,outputLabel])
-                
+        
+        elif typeOfFeature == "pearsonsCorrelationCoefficient":
+            print "\n##################\n PearsonCorrelationCoefficient\n##################\n"            
+            for patientIndex in range(len(allPatients)):                
+                allPatients[patientIndex].computePearsonsCorrelationCoefficient()
+                dataPoint = [allPatients[patientIndex].pearsonsCorrelationCoefficient,(allPatients[patientIndex].standardDeviation[0]*allPatients[patientIndex].standardDeviation[1])]
+                outputLabel = [allPatients[patientIndex].classificationLabel]        
+                featureVectors.append([dataPoint,outputLabel])
+        
+        print featureVectors              
         return featureVectors        
-    
+        
+        
+                    
 # def main():
 #     #Main
 #     dataPrep = DataPreparation()

@@ -80,13 +80,26 @@ class NearestNeighbor(Classifier):
 def main():
            
     #Prepare Data 
-    dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
-    allPatients = dataPreparation.preparePatientData()    
-    datasetList = dataPreparation.computeFeatures("kurtosis", allPatients)                
+    datasetToUse = "old"
+    if(datasetToUse == "old"):
+        dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
+    else:
+        dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClassLDL')
+    
+    allPatients = dataPreparation.preparePatientData()
+    
+    #Uncomment based on whichever feature you want to select
+    datasetList = dataPreparation.computeFeatures("mean", allPatients)
+#     datasetList = dataPreparation.computeFeatures("variance", allPatients)
+#     datasetList = dataPreparation.computeFeatures("maxMinDiff", allPatients)
+#     datasetList = dataPreparation.computeFeatures("skewness", allPatients)
+#     datasetList = dataPreparation.computeFeatures("kurtosis", allPatients)    
+#     datasetList = dataPreparation.computeFeatures("pearsonsCorrelationCoefficient", allPatients)  
+                  
     dataset = np.matrix(datasetList)
     
     #Create the NearestNeighbor Model
-    knn = NearestNeighbor(2)
+    knn = NearestNeighbor(3)
         
     np.random.shuffle(dataset)
     predictedOutputVector = []     
@@ -113,8 +126,9 @@ def main():
     knn.patientLabels = []
     for label in dataset[:,1]:
         knn.patientLabels = np.append(knn.patientLabels,label[0,0])
-#     knn.predictedPatientLabels = (predictedOutputVector==0).astype(float)
-    knn.predictedPatientLabels = predictedOutputVector
+    #Flip the classifications
+    knn.predictedPatientLabels = (predictedOutputVector==0).astype(float)
+#     knn.predictedPatientLabels = predictedOutputVector
         
     knn.evaluatePredictions()
     print "\nNumber of Neighbors = "+str(knn.k)    

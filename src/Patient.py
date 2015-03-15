@@ -1,5 +1,5 @@
 import numpy as np
-
+import math
 class Patient:
 	def __init__(self,filename):
 		
@@ -22,6 +22,7 @@ class Patient:
 		self.differenceOfMaxAndMinValue = (0,0)
 		self.skewnessOfMeasurements = (0,0)
 		self.kurtosisOfMeasurements = (0,0)	
+		self.pearsonsCorrelationCoefficient = (0,0)
 		
 		self.parseFileName(filename)
 		
@@ -39,8 +40,8 @@ class Patient:
 	def computeVariance(self):
 		matrixOfDifferencesForDiastolicMeasurements = np.subtract(self.diastolicMeasurements,self.meanOfMeasurements[0])
 		matrixOfDifferencesForSystolicMeasurements = np.subtract(self.systolicMeasurements,self.meanOfMeasurements[1])
-		varianceForDiastolicMeasurements = np.dot(np.transpose(matrixOfDifferencesForDiastolicMeasurements),matrixOfDifferencesForDiastolicMeasurements)[0,0]
-		varianceForSystolicMeasurements = np.dot(np.transpose(matrixOfDifferencesForSystolicMeasurements),matrixOfDifferencesForSystolicMeasurements)[0,0]		
+		varianceForDiastolicMeasurements = (np.dot(np.transpose(matrixOfDifferencesForDiastolicMeasurements),matrixOfDifferencesForDiastolicMeasurements)[0,0])/np.shape(self.diastolicMeasurements)[0]
+		varianceForSystolicMeasurements = (np.dot(np.transpose(matrixOfDifferencesForSystolicMeasurements),matrixOfDifferencesForSystolicMeasurements)[0,0])/np.shape(self.systolicMeasurements)[0]		
 		
 		self.varianceOfMeasurements = (varianceForDiastolicMeasurements,varianceForSystolicMeasurements)				
 		self.standardDeviation = (self.varianceOfMeasurements[0]**(0.5),self.varianceOfMeasurements[1]**(0.5))			
@@ -74,6 +75,20 @@ class Patient:
 		kurtosisOfSystolic = ((np.dot(np.transpose(differenceOfSystolic),np.multiply(differenceOfSystolic,np.multiply(differenceOfSystolic,differenceOfSystolic)))/np.shape(differenceOfSystolic)[0])/(self.standardDeviation[1]**4))[0,0]
 		
 		self.kurtosisOfMeasurements = (kurtosisOfDiastolic,kurtosisOfSystolic)
+	
+	def computePearsonsCorrelationCoefficient(self):
+		self.computeMean()
+		self.computeVariance()
+		
+		matrixOfDifferencesForDiastolicMeasurements = np.subtract(self.diastolicMeasurements,self.meanOfMeasurements[0])
+		matrixOfDifferencesForSystolicMeasurements = np.subtract(self.systolicMeasurements,self.meanOfMeasurements[1])
+		sumOfProductOfDifferences = (np.dot(np.transpose(matrixOfDifferencesForDiastolicMeasurements),matrixOfDifferencesForSystolicMeasurements)[0,0])
+		pearsonsCorrelationCoefficient = (sumOfProductOfDifferences/(np.shape(self.diastolicMeasurements)[0]-1))		
+		self.pearsonsCorrelationCoefficient = pearsonsCorrelationCoefficient
+		return self.pearsonsCorrelationCoefficient
+				
+
+		
 	
 	def printMeasurements(self):
 		print "\n##################\nDiastolic Measurements for Patient#"+str(self.patientID)+"\n##################\n"
