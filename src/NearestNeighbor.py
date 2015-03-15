@@ -92,9 +92,9 @@ def main():
 #     datasetList = dataPreparation.computeFeatures("mean", allPatients)
 #     datasetList = dataPreparation.computeFeatures("variance", allPatients)
 #     datasetList = dataPreparation.computeFeatures("maxMinDiff", allPatients)
-    datasetList = dataPreparation.computeFeatures("skewness", allPatients)
+#     datasetList = dataPreparation.computeFeatures("skewness", allPatients)
 #     datasetList = dataPreparation.computeFeatures("kurtosis", allPatients)    
-#     datasetList = dataPreparation.computeFeatures("pearsonsCorrelationCoefficient", allPatients)  
+    datasetList = dataPreparation.computeFeatures("pearsonsCorrelationCoefficient", allPatients)  
                   
     dataset = np.matrix(datasetList)
     

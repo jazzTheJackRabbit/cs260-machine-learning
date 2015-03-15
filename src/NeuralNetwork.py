@@ -221,9 +221,9 @@ def main():
     datasetsToUse = ["old","new"]
     for datasetToUse in datasetsToUse:
         
-        old_stdout = sys.stdout    
-        log_file = open("../results/output.log","a")
-        sys.stdout = log_file
+#         old_stdout = sys.stdout    
+#         log_file = open("../results/output.log","a")
+#         sys.stdout = log_file
                 
         if(datasetToUse == "old"):
             print "\n************************************************************"
@@ -248,8 +248,8 @@ def main():
          
         featureSets = ["mean","variance","maxMinDiff","skewness","kurtosis","pearsonsCorrelationCoefficient"]
         
-        sys.stdout = old_stdout        
-        log_file.close()
+#         sys.stdout = old_stdout        
+#         log_file.close()
         
         for featureSet in featureSets:            
             
@@ -257,8 +257,8 @@ def main():
             dataset = np.matrix(datasetList)
             np.random.shuffle(dataset)        
            
-            sys.stdout = old_stdout        
-            log_file.close()
+#             sys.stdout = old_stdout        
+#             log_file.close()
             for neuralNetworkConfig in neuralNetworkConfigs:                
                 
                 #Create NeuralNetwork model      
@@ -268,9 +268,9 @@ def main():
                 roundedPredictedOutputVector = [] 
                 
                 for i in range(len(dataset)):
-                    old_stdout = sys.stdout    
-                    log_file = open("../results/output.log","a")
-                    sys.stdout = log_file
+#                     old_stdout = sys.stdout    
+#                     log_file = open("../results/output.log","a")
+#                     sys.stdout = log_file
                     
                     print "EPOCH:"+str(i+1)+"/"+str(len(dataset))                
                     #testingSet is top element
@@ -292,8 +292,8 @@ def main():
                     #add reference Point back into the dataset.
                     dataset = np.append(dataset, referencePointLeftOutForTest,axis=0)
                     
-                    sys.stdout = old_stdout        
-                    log_file.close()
+#                     sys.stdout = old_stdout        
+#                     log_file.close()
                     
                 #EVALUATION
                 neuralNet.patientLabels = []
@@ -302,9 +302,9 @@ def main():
                 
                 neuralNet.predictedPatientLabels = roundedPredictedOutputVector    
                 
-                old_stdout = sys.stdout    
-                log_file = open("../results/output.log","a")
-                sys.stdout = log_file
+#                 old_stdout = sys.stdout    
+#                 log_file = open("../results/output.log","a")
+#                 sys.stdout = log_file
                  
                 print "\n************************************************************"
                 print "Current Feature: "+featureSet
@@ -338,8 +338,8 @@ def main():
                 print neuralNet.patientLabels
                 print "\n"
                 
-                sys.stdout = old_stdout        
-                log_file.close()
+#                 sys.stdout = old_stdout        
+#                 log_file.close()
     
 main();
     
