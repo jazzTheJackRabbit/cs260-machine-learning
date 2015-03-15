@@ -38,7 +38,7 @@ Neural Net:
 K-NN: 
 
 	You will only need to change the 'datasetToUse = "old"' variable in the main function to "new" if the new dataset is to be used.
-	The code is written to run for increasing values of k in the range of 1 to 10.
+	The code is written to run for increasing values of k in the range of 1 to 10 with cross validation.
 
 
 If you have any questions, please email me.
