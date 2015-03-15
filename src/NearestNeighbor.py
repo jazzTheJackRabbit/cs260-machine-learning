@@ -80,7 +80,7 @@ class NearestNeighbor(Classifier):
 def main():
            
     #Prepare Data 
-    datasetToUse = "old"
+    datasetToUse = "new"
     if(datasetToUse == "old"):
         dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
     else:
@@ -89,50 +89,49 @@ def main():
     allPatients = dataPreparation.preparePatientData()
     
     #Uncomment based on whichever feature you want to select
-    datasetList = dataPreparation.computeFeatures("mean", allPatients)
+#     datasetList = dataPreparation.computeFeatures("mean", allPatients)
 #     datasetList = dataPreparation.computeFeatures("variance", allPatients)
 #     datasetList = dataPreparation.computeFeatures("maxMinDiff", allPatients)
 #     datasetList = dataPreparation.computeFeatures("skewness", allPatients)
 #     datasetList = dataPreparation.computeFeatures("kurtosis", allPatients)    
-#     datasetList = dataPreparation.computeFeatures("pearsonsCorrelationCoefficient", allPatients)  
+    datasetList = dataPreparation.computeFeatures("pearsonsCorrelationCoefficient", allPatients)  
                   
     dataset = np.matrix(datasetList)
     
-    #Create the NearestNeighbor Model
-    knn = NearestNeighbor(3)
-        
-    np.random.shuffle(dataset)
-    predictedOutputVector = []     
-    for i in range(len(dataset)):
-        print "**************************"
-        print "EPOCH:"+str(i+1)+"/"+str(len(dataset))
-        print "**************************"
-        #testingSet is top element
-        referencePointLeftOutForTest = dataset[0]
-        
-        #pop top element
-        dataset = np.delete(dataset,0,axis=0)
-        
-        #trainingSet is the rest
-        trainingSet = dataset
-        
-        #create classification label list here.                
-        classificationLabel = knn.classify(trainingSet,referencePointLeftOutForTest)
-        predictedOutputVector = np.append(predictedOutputVector,classificationLabel);
-        
-        #add reference Point back into the dataset.
-        dataset = np.append(dataset, referencePointLeftOutForTest,axis=0)
+    for k in range(1,10):
+        #Create the NearestNeighbor Model
+        knn = NearestNeighbor(k)
+            
+        np.random.shuffle(dataset)
+        predictedOutputVector = []     
+        for i in range(len(dataset)):                
+            #testingSet is top element
+            referencePointLeftOutForTest = dataset[0]
+            
+            #pop top element
+            dataset = np.delete(dataset,0,axis=0)
+            
+            #trainingSet is the rest
+            trainingSet = dataset
+            
+            #create classification label list here.                
+            classificationLabel = knn.classify(trainingSet,referencePointLeftOutForTest)
+            predictedOutputVector = np.append(predictedOutputVector,classificationLabel);
+            
+            #add reference Point back into the dataset.
+            dataset = np.append(dataset, referencePointLeftOutForTest,axis=0)
+    
+        knn.patientLabels = []
+        for label in dataset[:,1]:
+            knn.patientLabels = np.append(knn.patientLabels,label[0,0])
+        #Flip the classifications        
+        knn.predictedPatientLabels = predictedOutputVector
+#         knn.predictedPatientLabels = (predictedOutputVector==0).astype(float)
 
-    knn.patientLabels = []
-    for label in dataset[:,1]:
-        knn.patientLabels = np.append(knn.patientLabels,label[0,0])
-    #Flip the classifications
-    knn.predictedPatientLabels = (predictedOutputVector==0).astype(float)
-#     knn.predictedPatientLabels = predictedOutputVector
-        
-    knn.evaluatePredictions()
-    print "\nNumber of Neighbors = "+str(knn.k)    
-    knn.printActualsVsPredictedLabels()    
+            
+        knn.evaluatePredictions()
+        print "\nNumber of Neighbors = "+str(knn.k)    
+        knn.printActualsVsPredictedLabels()    
     
 main();
      

@@ -4,6 +4,7 @@ import numpy as np
 import math
 import random
 import string
+import sys
 
 class NeuralNetwork(Classifier):
     def __init__(self, numberOfInputNeurons, numberOfHiddenNeurons, numberOfOutputNeurons):        
@@ -117,9 +118,9 @@ class NeuralNetwork(Classifier):
     
     def train(self,trainingSet,iterations=1000,N_learningRate=0.1,M_momentum=0.3):
         #iterations are actually training epochs
-        print "**************************"
-        print "TRAINING"
-        print "**************************"     
+#         print "**************************"
+#         print "TRAINING"
+#         print "**************************"     
         inputVectors = trainingSet[:,0]
         targetOutputVector = trainingSet[:,1]                
         for iteration in range(iterations):    
@@ -135,15 +136,15 @@ class NeuralNetwork(Classifier):
                 backPropChange = self.backPropagation(targetOutputVector[inputVectorIndex], N_learningRate,M_momentum)
 #                 print "BackPropChange:"+str(backPropChange)
                 error = error + backPropChange
-            if iteration % 100 == 0:
-                print 'error @iteration:'+ str(iteration) + ' =' + str(error)                            
+#             if iteration % 100 == 0:
+#                 print 'error @iteration:'+ str(iteration) + ' =' + str(error)                            
 #             print "Predicted Output(TRAINING):"
 #             print predictedOutputVector
             
         
     def classify(self,testingSet):
-        print "**************************"
-        print "TESTING"        
+#         print "**************************"
+#         print "TESTING"        
         self.patientLabels = []
         inputVectors = testingSet[:,0]                        
         for label in testingSet[:,1]:
@@ -164,68 +165,181 @@ class NeuralNetwork(Classifier):
                 
 #         self.printActualsVsPredictedLabels()
 #         self.evaluatePredictions()
-        print self.activationsForOutputLayer
-        print "**************************"
+#         print self.activationsForOutputLayer
+#         print "**************************"
         return self.activationsForOutputLayer
             
-def main():
-    neuralNetworkConfig={
-                         'iterations':600,
+def main():    
+    neuralNetworkConfigs=[{
+                         'iterations':300,
+                         'learningRate':0.1,
+                         'momentum':0.3
+                         },
+                          {
+                         'iterations':400,
+                         'learningRate':0.1,
+                         'momentum':0.3
+                         },
+                          {
+                         'iterations':500,
+                         'learningRate':0.1,
+                         'momentum':0.3
+                         },
+                          {
+                         'iterations':300,
                          'learningRate':0.05,
-                         'momentum':0.4
+                         'momentum':0.3
+                         },
+                          {
+                         'iterations':400,
+                         'learningRate':0.05,
+                         'momentum':0.3
+                         },
+                          {
+                         'iterations':500,
+                         'learningRate':0.05,
+                         'momentum':0.3
+                         },
+                          {
+                         'iterations':300,
+                         'learningRate':0.3,
+                         'momentum':0.5
+                         },
+                          {
+                         'iterations':400,
+                         'learningRate':0.3,
+                         'momentum':0.5
+                         },
+                          {
+                         'iterations':500,
+                         'learningRate':0.3,
+                         'momentum':0.5
                          }
+                        ]
     
-    #Prepare Data
-    dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
-    allPatients = dataPreparation.preparePatientData()    
-    datasetList = dataPreparation.computeFeatures("mean", allPatients)    
+    #Prepare Data 
+    datasetsToUse = ["old","new"]
+    for datasetToUse in datasetsToUse:
+        
+        old_stdout = sys.stdout    
+        log_file = open("../results/output.log","a")
+        sys.stdout = log_file
+                
+        if(datasetToUse == "old"):
+            print "\n************************************************************"
+            print "************************************************************"
+            print "************************************************************"            
+            print "OLD DATASET"
+            print "\n************************************************************"
+            print "************************************************************"
+            print "************************************************************"
+            dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClass')
+        else:
+            print "\n************************************************************"
+            print "************************************************************"
+            print "************************************************************"            
+            print "NEW DATASET"
+            print "\n************************************************************"
+            print "************************************************************"
+            print "************************************************************"
+            dataPreparation = DataPreparation('/Users/amogh/workspace/jazz/ucla/cs260a/MachineLearningProject/dataset/outDataClassLDL')
+        
+        allPatients = dataPreparation.preparePatientData()
+         
+        featureSets = ["mean","variance","maxMinDiff","skewness","kurtosis","pearsonsCorrelationCoefficient"]
+        
+        sys.stdout = old_stdout        
+        log_file.close()
+        
+        for featureSet in featureSets:            
             
-    dataset = np.matrix(datasetList)
-    np.random.shuffle(dataset)
-    
-    #Create NeuralNetwork model      
-    neuralNet = NeuralNetwork(2,5,1)        
-    
-    predictedOutputVector = []
-    roundedPredictedOutputVector = []     
-    for i in range(len(dataset)):
-        print "**************************"
-        print "EPOCH:"+str(i+1)+"/"+str(len(dataset))
-        print "**************************"
-        #testingSet is top element
-        referencePointLeftOutForTest = dataset[0]
-        
-        #pop top element
-        dataset = np.delete(dataset,0,axis=0)
-        
-        #trainingSet is the rest
-        trainingSet = dataset
-        
-        #create classification label list here.     
-        neuralNet.train(trainingSet,iterations=neuralNetworkConfig['iterations'],N_learningRate=neuralNetworkConfig['learningRate'],M_momentum=neuralNetworkConfig['momentum'])
-        neuralNet.randomizeWeights(0.2, 2.0)           
-        classificationLabel = neuralNet.classify(referencePointLeftOutForTest)
-        predictedOutputVector = np.append(predictedOutputVector,classificationLabel);
-        roundedPredictedOutputVector = np.append(roundedPredictedOutputVector,round(classificationLabel));
-        
-        #add reference Point back into the dataset.
-        dataset = np.append(dataset, referencePointLeftOutForTest,axis=0)
-
-    #EVALUATION
-    neuralNet.patientLabels = []
-    for label in dataset[:,1]:
-        neuralNet.patientLabels = np.append(neuralNet.patientLabels,label[0,0])
-    neuralNet.predictedPatientLabels = roundedPredictedOutputVector
-    
-    neuralNet.evaluatePredictions()
-    print "\nNeural Network configuration: iterations="+str(neuralNetworkConfig['iterations'])+" | LearningRate="+str(neuralNetworkConfig['learningRate'])+" | Momentum:"+str(neuralNetworkConfig['momentum'])
-    neuralNet.printActualsVsPredictedLabels()
-    
-    print "\nPredicted REALVALUED Output(TESTING):"
-    print predictedOutputVector
-    
-    print "Actual Output(TESTING):"
-    print neuralNet.patientLabels
+            datasetList = dataPreparation.computeFeatures(featureSet, allPatients)                               
+            dataset = np.matrix(datasetList)
+            np.random.shuffle(dataset)        
+           
+            sys.stdout = old_stdout        
+            log_file.close()
+            for neuralNetworkConfig in neuralNetworkConfigs:                
+                
+                #Create NeuralNetwork model      
+                neuralNet = NeuralNetwork(2,5,1)   
+                          
+                predictedOutputVector = []
+                roundedPredictedOutputVector = [] 
+                
+                for i in range(len(dataset)):
+                    old_stdout = sys.stdout    
+                    log_file = open("../results/output.log","a")
+                    sys.stdout = log_file
+                    
+                    print "EPOCH:"+str(i+1)+"/"+str(len(dataset))                
+                    #testingSet is top element
+                    referencePointLeftOutForTest = dataset[0]
+                    
+                    #pop top element
+                    dataset = np.delete(dataset,0,axis=0)
+                    
+                    #trainingSet is the rest
+                    trainingSet = dataset
+                    
+                    #create classification label list here.     
+                    neuralNet.train(trainingSet,iterations=neuralNetworkConfig['iterations'],N_learningRate=neuralNetworkConfig['learningRate'],M_momentum=neuralNetworkConfig['momentum'])
+                    neuralNet.randomizeWeights(0.2, 2.0)           
+                    classificationLabel = neuralNet.classify(referencePointLeftOutForTest)
+                    predictedOutputVector = np.append(predictedOutputVector,classificationLabel);
+                    roundedPredictedOutputVector = np.append(roundedPredictedOutputVector,round(classificationLabel));
+                    
+                    #add reference Point back into the dataset.
+                    dataset = np.append(dataset, referencePointLeftOutForTest,axis=0)
+                    
+                    sys.stdout = old_stdout        
+                    log_file.close()
+                    
+                #EVALUATION
+                neuralNet.patientLabels = []
+                for label in dataset[:,1]:
+                    neuralNet.patientLabels = np.append(neuralNet.patientLabels,label[0,0])
+                
+                neuralNet.predictedPatientLabels = roundedPredictedOutputVector    
+                
+                old_stdout = sys.stdout    
+                log_file = open("../results/output.log","a")
+                sys.stdout = log_file
+                 
+                print "\n************************************************************"
+                print "Current Feature: "+featureSet
+                print "************************************************************"
+                
+                neuralNet.evaluatePredictions()
+                print "\nNeural Network configuration: iterations="+str(neuralNetworkConfig['iterations'])+" | LearningRate="+str(neuralNetworkConfig['learningRate'])+" | Momentum:"+str(neuralNetworkConfig['momentum'])
+                neuralNet.printActualsVsPredictedLabels()
+                
+                print "\nPredicted REALVALUED Output(TESTING):"
+                print predictedOutputVector
+                
+                print "Actual Output(TESTING):"
+                print neuralNet.patientLabels
+                
+                
+                #FLIPPED CLASSIFICATION
+                print "\n************************************************************"
+                print "FLIPPED CLASSIFICATION..................................."
+                print "************************************************************"
+                neuralNet.predictedPatientLabels = (roundedPredictedOutputVector==0).astype(float)
+                
+                neuralNet.evaluatePredictions()
+                print "\nNeural Network configuration: iterations="+str(neuralNetworkConfig['iterations'])+" | LearningRate="+str(neuralNetworkConfig['learningRate'])+" | Momentum:"+str(neuralNetworkConfig['momentum'])
+                neuralNet.printActualsVsPredictedLabels()
+                
+                print "\nPredicted REALVALUED Output(TESTING):"
+                print predictedOutputVector
+                
+                print "Actual Output(TESTING):"
+                print neuralNet.patientLabels
+                print "\n"
+                
+                sys.stdout = old_stdout        
+                log_file.close()
     
 main();
     
